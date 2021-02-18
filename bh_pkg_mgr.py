@@ -5,40 +5,52 @@ import os
 PKG_FILE = "/var/lib/dpkg/status"
 LIC = "/usr/share/doc/"
 
+pkg=0
+dpd=0
+lic=0
+hmp=0
+unknown=0
 
 def get_license(pkg_name):
-  val = 0
-  cnt = 0
-  lic = LIC + pkg_name + "/copyright"
-  if os.path.exists(lic) == True:
-    print("Copyright:",lic)
-    f_copyright = open(lic, 'r')
+  global lic
+  global unknown
+
+  cnt=0
+
+  LIC_FILE = LIC + pkg_name + "/copyright"
+  if os.path.exists(LIC_FILE) == True:
+    print("Copyright:",LIC_FILE)
+    f_copyright = open(LIC_FILE, 'r')
 
     for data in f_copyright:
       name = data.split(" ")
       #datalist = f_copyright.readlines()
       if "License:" == name[0]:
         print(data.rstrip('\n'))
-        val = 1
-        cnt += 1
         if cnt > 5:
           break
+        else:
+          cnt+=1
       elif "Public License:" == name[0]:
         print(data.rstrip('\n'))
-        val = 1
-        cnt += 1
         if cnt > 5:
           break
+        else:
+          cnt+=1
+
+    if cnt == 0:
+      unknown += 1 
+    else:
+      lic += 1
 
     f_copyright.close()
-  return val
 
 def make_list():
-  pkg=0
-  dpd=0
-  lic=0
-  hmp=0
-
+  global pkg
+  global dpd
+  global lic
+  global unknown
+  global hmp
   f_status = open(PKG_FILE, 'r')
 
   #print (datalist)
@@ -53,7 +65,8 @@ def make_list():
       print(data.rstrip('\n'))
       pkg += 1
       pkg_name = data.split()
-      lic += get_license(pkg_name[1])
+      get_license(pkg_name[1])
+      
     elif "Depends:" == name[0]:
       print(data.rstrip('\n'))
       dpd += 1
@@ -67,13 +80,15 @@ def make_list():
 
   f_status.close()
 
-  print("\n")
-  print("=================== SUMMARY ====================")
-  print("Package: ",pkg)
-  print("Depends: ",dpd)
-  print("License: ",lic)
-  print("Homepage: ",hmp)
 
 make_list()
 
+print("\n")
+print("============= Pakeging License Summary ===========")
+print("Package: ",pkg)
+print("Depends: ",dpd)
+print("License: ",lic)
+print("Unknown License: ",unknown)
+print("Homepage: ",hmp)
+print("==================================================")
 
