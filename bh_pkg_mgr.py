@@ -26,17 +26,11 @@ def get_license(pkg_name):
       name = data.split(" ")
       #datalist = f_copyright.readlines()
       if "License:" == name[0]:
-        print(data.rstrip('\n'))
-        if cnt > 5:
-          break
-        else:
-          cnt+=1
+        cnt=1
+        print(data.strip('License: \r \n'),end='')
       elif "Public License:" == name[0]:
-        print(data.rstrip('\n'))
-        if cnt > 5:
-          break
-        else:
-          cnt+=1
+        cnt=1
+        print(data.strip('License: \r \n'),end='')
 
     if cnt == 0:
       unknown += 1 
@@ -65,6 +59,8 @@ def make_list():
       print(data.rstrip('\n'))
       pkg += 1
       pkg_name = data.split()
+      if "chromium-" in pkg_name[1]:
+        continue
       get_license(pkg_name[1])
       
     elif "Depends:" == name[0]:
