@@ -23,18 +23,19 @@ def get_license(pkg_name):
 
   LIC_FILE = LIC + pkg_name + "/copyright"
   if os.path.exists(LIC_FILE) == True:
-    print("Copyright:",LIC_FILE)
+#   print("Copyright:",LIC_FILE)
     f_copyright = open(LIC_FILE, 'r')
 
-    print('License: ',end='')
+    print('License:', end='')
     for data in f_copyright:
       name = data.split(" ")
-      #datalist = f_copyright.readlines()
       if "License:" == name[0]:
-        print(data.strip('License: \r \n')," ",end='')
+        #print(data.strip('License:\r\n'), end='')
+        print(data.replace('License:','').replace('\n',''), end='')
         cnt+=1
       elif "Public License:" == name[0]:
-        print(data.strip('License: \r \n')," ",end='')
+        #print(data.replace('License:\r\n',''), end='')
+        print(data.replace('License:','').replace('\n',''), end='')
         cnt+=1
 
       if "chromium-" in pkg_name:
@@ -44,10 +45,11 @@ def get_license(pkg_name):
 
     if cnt == 0:
       unknown += 1 
+      print(' unknown\r')
     else:
       lic += 1
+      print('\r')
 
-    print('\r')
 
     f_copyright.close()
 
@@ -59,10 +61,6 @@ def make_list():
   global unknown
   global hmp
   f_status = open(PKG_FILE, 'r')
-
-  #print (datalist)
-  #datalist = f.readlines()
-  #print(datalist,end='')
 
   for data in f_status:
     name = data.split(" ")
@@ -96,9 +94,9 @@ make_list()
 print("\n")
 print("============= Distribution Specific ==========")
 result = subprocess.run(["lsb_release","-a"], stdout=subprocess.PIPE)
-print("OS version: ",result.stdout.decode("utf-8"),end='')
+print("OS version: ",result.stdout.decode("utf-8"), end='')
 result = subprocess.run(["uname","-r"], stdout=subprocess.PIPE)
-print("OS version: ",result.stdout.decode("utf-8"),end='')
+print("OS version: ",result.stdout.decode("utf-8"), end='')
 print("============= Pakeging License Summary ===========")
 print("Package: ",pkg)
 print("Version: ",ver)
