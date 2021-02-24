@@ -2,11 +2,13 @@
 
 import subprocess
 import os
+import sys
 
 PKG_FILE = "/var/lib/dpkg/status"
 LIC = "/usr/share/doc/"
 
 pkg=0
+cpy=0
 ver=0
 dpd=0
 lic=0
@@ -18,28 +20,35 @@ LIC_LIMIT = 10
 def get_license(pkg_name):
   global lic
   global unknown
+  global cpy
 
   cnt=0
 
   LIC_FILE = LIC + pkg_name + "/copyright"
   if os.path.exists(LIC_FILE) == True:
-#   print("Copyright:",LIC_FILE)
+    if (len(sys.argv) > 1) and (sys.argv[1] == "copyright"):
+        print("Copyright:",LIC_FILE)
+        cpy+=1
     f_copyright = open(LIC_FILE, 'r')
 
-    print('License:', end='')
+    print('License: ', end='')
     for data in f_copyright:
       name = data.split(" ")
       if "License:" == name[0]:
         #print(data.strip('License:\r\n'), end='')
         print(data.replace('License:','').replace('\n',''), end='')
         cnt+=1
-      elif "Public License:" == name[0]:
-        #print(data.replace('License:\r\n',''), end='')
-        print(data.replace('License:','').replace('\n',''), end='')
+      elif "common-licenses" in data:
+#       print(data.replace('License:','').replace('\n',''), end='')
+        print(" ",data.replace('\n','')," ", end='')
+        cnt+=1
+      elif "(1) GPL-compatible" in data:
+        print('GPL-compatible', end='')
         cnt+=1
 
-      if "chromium-" in pkg_name:
-        break
+
+#     if "chromium-" in pkg_name:
+#       break
       if cnt > LIC_LIMIT:
         break
 
@@ -92,6 +101,11 @@ def make_list():
 make_list()
 
 print("\n")
+if len(sys.argv) > 1:
+  arg_name = sys.argv[1]
+else:
+  arg_name =""
+print("command arg: ",len(sys.argv),arg_name)
 print("============= Distribution Specific ==========")
 result = subprocess.run(["lsb_release","-a"], stdout=subprocess.PIPE)
 print("OS version: ",result.stdout.decode("utf-8"), end='')
@@ -102,7 +116,10 @@ print("Package: ",pkg)
 print("Version: ",ver)
 print("Depends: ",dpd)
 print("License: ",lic)
+print("Reliability: ",'{:.2%}'.format(lic/pkg))
 print("Unknown License: ",unknown)
 print("Homepage: ",hmp)
+if (len(sys.argv) > 1) and (sys.argv[1] == "copyright"):
+  print("Copyright:",cpy)
 print("==================================================")
 
